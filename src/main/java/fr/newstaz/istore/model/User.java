@@ -12,6 +12,8 @@ public class User {
 
     private Role role;
 
+    private boolean isVerified = false;
+
     public User() {
     }
 
@@ -21,11 +23,12 @@ public class User {
         this.role = Role.USER;
     }
 
-    public User(int id, String email, String password, Role role) {
+    public User(int id, String email, String password, Role role, boolean isVerified) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.role = role;
+        this.isVerified = isVerified;
     }
 
     public User(String email, String hashpw, Role role) {
@@ -39,6 +42,7 @@ public class User {
         this.email = user.email;
         this.password = user.password;
         this.role = user.role;
+        this.isVerified = user.isVerified;
     }
 
     public int getId() {
@@ -67,6 +71,14 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public boolean isVerified() {
+        return isVerified;
+    }
+
+    public void setVerified(boolean verified) {
+        isVerified = verified;
     }
 
     @Override

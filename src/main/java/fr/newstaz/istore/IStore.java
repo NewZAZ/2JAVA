@@ -4,6 +4,7 @@ import fr.newstaz.istore.controller.Controller;
 import fr.newstaz.istore.database.Database;
 import fr.newstaz.istore.repository.Repository;
 import fr.newstaz.istore.ui.MainFrame;
+import org.mindrot.jbcrypt.BCrypt;
 
 import javax.swing.*;
 import java.sql.SQLException;
@@ -32,6 +33,25 @@ public class IStore {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
+        database.execute(() -> {
+            try (var statement = database.getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS users (id INT PRIMARY KEY AUTO_INCREMENT, email VARCHAR(255) UNIQUE NOT NULL, password VARCHAR(255) NOT NULL, role VARCHAR(255), is_verified BOOLEAN)")) {
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        String passwordHash = BCrypt.hashpw("admin", BCrypt.gensalt());
+        String createAdmin = "INSERT INTO users (email, password, role, is_verified) VALUES ('admin', '"+passwordHash+"', 'ADMIN', true) ON DUPLICATE KEY UPDATE email = 'admin', password = '"+passwordHash+"', role = 'ADMIN', is_verified = true";
+
+        database.execute(() -> {
+            try (var statement = database.getConnection().prepareStatement(createAdmin)) {
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
         Repository repository = new Repository(database);
 

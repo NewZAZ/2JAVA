@@ -25,9 +25,11 @@ public class UserDAO implements UserRepository {
         Connection connection = database.getConnection();
 
         database.execute(() -> {
-            try (PreparedStatement statement = connection.prepareStatement("INSERT INTO users (email, password) VALUES (?, ?)")) {
+            try (PreparedStatement statement = connection.prepareStatement("INSERT INTO users (email, password, role, is_verified) VALUES (?, ?, ?, ?)")) {
                 statement.setString(1, user.getEmail());
                 statement.setString(2, user.getPassword());
+                statement.setString(3, user.getRole().name());
+                statement.setBoolean(4, user.isVerified());
 
                 statement.executeUpdate();
             } catch (SQLException e) {
@@ -49,7 +51,8 @@ public class UserDAO implements UserRepository {
                         resultSet.getInt("id"),
                         resultSet.getString("email"),
                         resultSet.getString("password"),
-                        User.Role.valueOf(resultSet.getString("role") == null ? "USER" : resultSet.getString("role"))
+                        User.Role.valueOf(resultSet.getString("role") == null ? "USER" : resultSet.getString("role")),
+                        resultSet.getBoolean("is_verified")
                 );
             }
         } catch (SQLException e) {
@@ -63,11 +66,12 @@ public class UserDAO implements UserRepository {
         Connection connection = database.getConnection();
 
         database.execute(() -> {
-            try (PreparedStatement statement = connection.prepareStatement("UPDATE users SET email = ?, password = ?, role = ? WHERE id = ?")) {
+            try (PreparedStatement statement = connection.prepareStatement("UPDATE users SET email = ?, password = ?, role = ?, is_verified = ? WHERE id = ?")) {
                 statement.setString(1, user.getEmail());
                 statement.setString(2, user.getPassword());
                 statement.setString(3, user.getRole().name());
-                statement.setInt(4, user.getId());
+                statement.setBoolean(4, user.isVerified());
+                statement.setInt(5, user.getId());
 
                 statement.executeUpdate();
             } catch (SQLException e) {
@@ -103,7 +107,8 @@ public class UserDAO implements UserRepository {
                         resultSet.getInt("id"),
                         resultSet.getString("email"),
                         resultSet.getString("password"),
-                        User.Role.valueOf(resultSet.getString("role") == null ? "USER" : resultSet.getString("role"))
+                        User.Role.valueOf(resultSet.getString("role") == null ? "USER" : resultSet.getString("role")),
+                        resultSet.getBoolean("is_verified")
                 ));
             }
         } catch (SQLException e) {
@@ -116,7 +121,7 @@ public class UserDAO implements UserRepository {
         Connection connection = database.getConnection();
 
         database.execute(() -> {
-            try (PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS users (id INT PRIMARY KEY AUTO_INCREMENT, email VARCHAR(255), password VARCHAR(255), role VARCHAR(255))")) {
+            try (PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS users (id INT PRIMARY KEY AUTO_INCREMENT, email VARCHAR(255), password VARCHAR(255), role VARCHAR(255), is_verified BOOLEAN)")) {
                 statement.executeUpdate();
             } catch (SQLException e) {
                 throw new RuntimeException(e);

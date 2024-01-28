@@ -92,4 +92,9 @@ public class UserController {
 
         return new UserResponse(true, "User validated");
     }
+
+    public void verifyUser(User user) {
+        user.setVerified(true);
+        repository.getUserRepository().updateUser(user);
+    }
 }

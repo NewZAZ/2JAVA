@@ -48,6 +48,11 @@ public class AuthenticationController {
         if (!BCrypt.checkpw(password, hashedPassword)) {
             return new LoginResponse(false, "Wrong password");
         }
+
+        if (!user.isVerified()) {
+            return new LoginResponse(false, "User is not verified");
+        }
+
         loggedUser = user;
         return new LoginResponse(true, "User logged in");
     }

@@ -86,6 +86,7 @@ public class UserManagementPanel extends JPanel {
             JPanel userRow = new JPanel(new BorderLayout());
 
             if (loggedUser != null && loggedUser.getRole() == User.Role.ADMIN) {
+                JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
                 JButton modifyButton = new JButton("MODIFIER");
                 modifyButton.addActionListener(e -> {
                     SwingUtilities.invokeLater(() -> {
@@ -94,8 +95,20 @@ public class UserManagementPanel extends JPanel {
                     });
                 });
 
-                JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+                JButton verifyButton = new JButton("VERIFIER");
+                if (!user.isVerified()) {
+                    verifyButton.addActionListener(e -> {
+                        SwingUtilities.invokeLater(() -> {
+                            controller.getUserController().verifyUser(user);
+                            mainFrame.setContentPane(new UserManagementPanel(controller, mainFrame));
+                            mainFrame.revalidate();
+                        });
+                    });
+                    buttonPanel.add(verifyButton);
+                }
+
                 buttonPanel.add(modifyButton);
+
 
                 JPanel userDetailsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
                 userDetailsPanel.add(new JLabel("Email: " + user.getEmail()));

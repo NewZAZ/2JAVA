@@ -15,7 +15,6 @@ public class RegisterPanel extends JPanel {
     private JTextField emailField;
     private JPasswordField passwordField;
     private JPasswordField confirmPasswordField;
-    private JButton registerButton;
 
     public RegisterPanel(Controller controller, JFrame mainFrame) {
         this.controller = controller;
@@ -66,7 +65,7 @@ public class RegisterPanel extends JPanel {
         gbc.gridx = 0;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER; // Centrer horizontalement
-        registerButton = new JButton("Register");
+        JButton registerButton = new JButton("Register");
         registerButton.addActionListener(e -> {
             SwingUtilities.invokeLater(this::performRegister);
         });
