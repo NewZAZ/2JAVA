@@ -26,10 +26,7 @@ public class IStore {
         String username = appConfig.getDatabaseUsername();
         String password = appConfig.getDatabasePassword();
 
-        System.out.println(url);
-        System.out.println(password);
-        System.out.println(username);
-        Database database = null;
+        Database database;
         try {
             database = new Database(url, username, password);
         } catch (SQLException e) {
@@ -39,7 +36,6 @@ public class IStore {
         Repository repository = new Repository(database);
 
         Controller controller = new Controller(repository);
-
 
         SwingUtilities.invokeLater(() -> {
             new MainFrame(controller);

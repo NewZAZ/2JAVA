@@ -65,28 +65,46 @@ public class ToastComponent {
             setOpacity(1);
         }
 
+        private volatile boolean shouldCancel = false;
+
         public void display(int duration) {
-            try {
-                setOpacity(1);
-                setVisible(true);
+            SwingWorker<Void, Float> worker = new SwingWorker<Void, Float>() {
+                @Override
+                protected Void doInBackground() throws Exception {
+                    try {
+                        setOpacity(1);
+                        setVisible(true);
 
-                Timer timer = new Timer(duration, (e) -> {
-                    for (double d = 1.0; d > 0.2; d -= 0.1) {
-                        try {
+                        for (float opacity = 1.0f; opacity > 0.2f; opacity -= 0.1f) {
+                            if (shouldCancel) {
+                                break;
+                            }
+
                             Thread.sleep(100);
-                        } catch (InterruptedException ex) {
-                            ex.printStackTrace();
+                            publish(opacity);
                         }
-                        setOpacity((float) d);
-                    }
-                    setVisible(false);
-                });
-                timer.setRepeats(false);
-                timer.start();
 
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
+                        setVisible(false);
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
+                    return null;
+                }
+
+                @Override
+                protected void process(java.util.List<Float> chunks) {
+                    Float opacity = chunks.get(0);
+                    setOpacity(opacity);
+                }
+            };
+
+            worker.execute();
+
+            Timer timer = new Timer(duration, (e) -> {
+                shouldCancel = true;
+            });
+            timer.setRepeats(false);
+            timer.start();
         }
 
         private Point calculatePosition(Point parentLocation, int parentWidth, ToastPosition position) {
@@ -105,4 +123,3 @@ public class ToastComponent {
         }
     }
 }
-

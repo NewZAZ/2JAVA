@@ -60,8 +60,9 @@ public class LoginPanel extends JPanel {
         add(loginButton, gbc);
 
         gbc.gridy++;
-        gbc.anchor = GridBagConstraints.CENTER; // Centrer horizontalement
         gbc.gridx = 0;
+        gbc.anchor = GridBagConstraints.CENTER; // Centrer horizontalement
+        gbc.gridwidth = 2;
         JButton registerButton = new JButton("Register");
         registerButton.addActionListener(e -> {
             SwingUtilities.invokeLater(() -> {
@@ -71,14 +72,6 @@ public class LoginPanel extends JPanel {
             });
         });
         add(registerButton, gbc);
-
-        // Nouveau gbc pour centrer le bouton "Register" par rapport aux champs "Email" et "Password"
-        GridBagConstraints registerGBC = new GridBagConstraints();
-        registerGBC.gridy = gbc.gridy + 1;
-        registerGBC.gridx = 1;
-        registerGBC.anchor = GridBagConstraints.CENTER; // Centrer horizontalement
-        registerGBC.gridwidth = 1;
-        add(registerButton, registerGBC);
     }
 
     private void performLogin() {

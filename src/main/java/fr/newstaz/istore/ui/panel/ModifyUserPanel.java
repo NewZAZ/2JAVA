@@ -2,18 +2,20 @@ package fr.newstaz.istore.ui.panel;
 
 import fr.newstaz.istore.controller.Controller;
 import fr.newstaz.istore.model.User;
+import fr.newstaz.istore.response.UserResponse;
+import fr.newstaz.istore.ui.component.ToastComponent;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class ModifyUserPanel extends Container {
+public class ModifyUserPanel extends JPanel {
 
     private final Controller controller;
     private final JFrame mainFrame;
 
     private JTextField emailField;
     private JPasswordField passwordField;
-    private JPasswordField confirmPasswordField;
+    private JComboBox roleBox;
 
 
     public ModifyUserPanel(Controller controller, JFrame mainFrame, User user) {
@@ -54,13 +56,14 @@ public class ModifyUserPanel extends Container {
         gbc.gridy++;
         gbc.gridx = 0;
         gbc.anchor = GridBagConstraints.LINE_END;
-        JLabel confirmPasswordLabel = new JLabel("Confirm password:");
-        add(confirmPasswordLabel, gbc);
+        JLabel roleLabel = new JLabel("Role:");
+        add(roleLabel, gbc);
 
         gbc.gridx = 1;
         gbc.anchor = GridBagConstraints.LINE_START;
-        confirmPasswordField = new JPasswordField(20);
-        add(confirmPasswordField, gbc);
+        roleBox = new JComboBox(User.Role.values());
+        roleBox.setSelectedItem(user.getRole());
+        add(roleBox, gbc);
 
         gbc.gridy++;
         gbc.gridx = 0;
@@ -71,29 +74,66 @@ public class ModifyUserPanel extends Container {
             SwingUtilities.invokeLater(() -> performEdit(user));
         });
         add(editButton, gbc);
+
+        gbc.gridy++;
+        gbc.gridx = 0;
+        gbc.anchor = GridBagConstraints.CENTER; // Centrer horizontalement
+        gbc.gridwidth = 2;
+        JButton deleteButton = new JButton("Supprimer");
+        deleteButton.addActionListener(e -> {
+            SwingUtilities.invokeLater(() -> performDelete(user));
+        });
+        add(deleteButton, gbc);
+
+        gbc.gridy++;
+        gbc.gridx = 0;
+        gbc.anchor = GridBagConstraints.CENTER; // Centrer horizontalement
+        gbc.gridwidth = 2;
+        JButton cancelButton = new JButton("Annuler");
+        cancelButton.addActionListener(e -> SwingUtilities.invokeLater(() -> {
+            mainFrame.setContentPane(new UserManagementPanel(controller, mainFrame));
+            mainFrame.revalidate();
+        }));
+        add(cancelButton, gbc);
+
+        if (controller.getAuthenticationController().getLoggedUser().equals(user)) {
+            roleBox.setEnabled(false);
+            deleteButton.setEnabled(false);
+        }
     }
 
     private void performEdit(User user) {
         String email = emailField.getText();
         String password = new String(passwordField.getPassword());
-        String confirmPassword = new String(confirmPasswordField.getPassword());
+        User.Role role = (User.Role) roleBox.getSelectedItem();
 
-        if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Veuillez remplir tous les champs", "Erreur", JOptionPane.ERROR_MESSAGE);
+        if (email.isEmpty()) {
+            email = user.getEmail();
+        }
+        if (password.isEmpty()) {
+            password = user.getPassword();
+        }
+
+        UserResponse.EditUserResponse editUserResponse = controller.getUserController().editUser(user, email, password, role);
+        if (!editUserResponse.success()) {
+            ToastComponent.showFailedToast(this, editUserResponse.message());
             return;
         }
 
-        if (!password.equals(confirmPassword)) {
-            JOptionPane.showMessageDialog(this, "Les mots de passe ne correspondent pas", "Erreur", JOptionPane.ERROR_MESSAGE);
+        ToastComponent.showSuccessToast(this, editUserResponse.message());
+        SwingUtilities.invokeLater(() -> {
+            mainFrame.setContentPane(new UserManagementPanel(controller, mainFrame));
+            mainFrame.revalidate();
+        });
+    }
+
+    private void performDelete(User user) {
+        if (!controller.getUserController().deleteUser(user)) {
+            ToastComponent.showFailedToast(this, "Impossible de supprimer l'utilisateur");
             return;
         }
 
-        /*if (!controller.getUserController().editUser(user, email, password)) {
-            JOptionPane.showMessageDialog(this, "Erreur lors de la modification de l'utilisateur", "Erreur", JOptionPane.ERROR_MESSAGE);
-            return;
-        }*/
-
-        JOptionPane.showMessageDialog(this, "Utilisateur modifié avec succès", "Succès", JOptionPane.INFORMATION_MESSAGE);
+        ToastComponent.showSuccessToast(this, "Utilisateur supprimé avec succès");
         SwingUtilities.invokeLater(() -> {
             mainFrame.setContentPane(new UserManagementPanel(controller, mainFrame));
             mainFrame.revalidate();

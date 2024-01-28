@@ -1,5 +1,7 @@
 package fr.newstaz.istore.model;
 
+import java.util.Objects;
+
 public class User {
 
     private int id;
@@ -9,6 +11,9 @@ public class User {
     private String password;
 
     private Role role;
+
+    public User() {
+    }
 
     public User(String email, String password) {
         this.email = email;
@@ -21,6 +26,19 @@ public class User {
         this.email = email;
         this.password = password;
         this.role = role;
+    }
+
+    public User(String email, String hashpw, Role role) {
+        this.email = email;
+        this.password = hashpw;
+        this.role = role;
+    }
+
+    public User(User user) {
+        this.id = user.id;
+        this.email = user.email;
+        this.password = user.password;
+        this.role = user.role;
     }
 
     public int getId() {
@@ -49,6 +67,18 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User user)) return false;
+        return id == user.id && Objects.equals(email, user.email) && Objects.equals(password, user.password) && role == user.role;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, email, password, role);
     }
 
     public enum Role {

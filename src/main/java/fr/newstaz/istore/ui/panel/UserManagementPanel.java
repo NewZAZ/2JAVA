@@ -5,8 +5,6 @@ import fr.newstaz.istore.model.User;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.List;
 
 public class UserManagementPanel extends JPanel {
@@ -32,20 +30,25 @@ public class UserManagementPanel extends JPanel {
         searchTextField = new JTextField();
         searchButton = new JButton("SEARCH");
 
-        searchButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                displayUsers(controller.getUserController().searchUsers(searchTextField.getText()));
-            }
-        });
+        searchButton.addActionListener(e -> displayUsers(controller.getUserController().searchUsers(searchTextField.getText())));
 
         // Panneau pour les utilisateurs
         userPanel = new JPanel();
         userPanel.setLayout(new BoxLayout(userPanel, BoxLayout.Y_AXIS));
 
         displayUsers(controller.getUserController().getAllUsers());
+
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         // Bouton d'ajout
-        addButton = new JButton("AJOUTER UN UTILISATEUR");
+        if (controller.getAuthenticationController().getLoggedUser() != null && controller.getAuthenticationController().getLoggedUser().getRole() == User.Role.ADMIN) {
+            addButton = new JButton("AJOUTER UN UTILISATEUR");
+            addButton.addActionListener(e -> SwingUtilities.invokeLater(() -> {
+                mainFrame.setContentPane(new AddUserPanel(controller, mainFrame));
+                mainFrame.revalidate();
+            }));
+
+            bottomPanel.add(addButton);
+        }
 
         // Ajout des composants au panneau
         JPanel topPanel = new JPanel(new BorderLayout());
@@ -53,13 +56,24 @@ public class UserManagementPanel extends JPanel {
         topPanel.add(searchButton, BorderLayout.EAST);
 
         JPanel centerPanel = new JPanel(new BorderLayout());
-        centerPanel.add(new JScrollPane(userPanel), BorderLayout.CENTER);
+        JScrollPane comp = new JScrollPane(userPanel);
 
-        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        bottomPanel.add(addButton);
+        comp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        // Set fastes scroll speed
+        comp.getVerticalScrollBar().setUnitIncrement(16);
+
+        centerPanel.add(comp, BorderLayout.CENTER);
 
         add(topPanel, BorderLayout.NORTH);
         add(centerPanel, BorderLayout.CENTER);
+
+        // Ajouter le bouton retour
+        JButton backButton = new JButton("RETOUR");
+        backButton.addActionListener(e -> SwingUtilities.invokeLater(() -> {
+            mainFrame.setContentPane(new HomePanel(controller, mainFrame));
+            mainFrame.revalidate();
+        }));
+        bottomPanel.add(backButton);
         add(bottomPanel, BorderLayout.SOUTH);
     }
 
@@ -68,22 +82,34 @@ public class UserManagementPanel extends JPanel {
         userPanel.removeAll(); // Efface les composants existants
 
         for (User user : userList) {
-            JButton modifyButton = new JButton("MODIFIER");
-            modifyButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
+            User loggedUser = controller.getAuthenticationController().getLoggedUser();
+            JPanel userRow = new JPanel(new BorderLayout());
+
+            if (loggedUser != null && loggedUser.getRole() == User.Role.ADMIN) {
+                JButton modifyButton = new JButton("MODIFIER");
+                modifyButton.addActionListener(e -> {
                     SwingUtilities.invokeLater(() -> {
                         mainFrame.setContentPane(new ModifyUserPanel(controller, mainFrame, user));
                         mainFrame.revalidate();
                     });
-                }
-            });
+                });
 
-            JPanel userRow = new JPanel(new GridLayout(1, 2));
+                JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+                buttonPanel.add(modifyButton);
 
-            userRow.add(new JLabel("Email: " + user.getEmail()));
-            userRow.add(new JLabel("Role: " + user.getRole()));
-            userRow.add(modifyButton, BorderLayout.EAST);
+                JPanel userDetailsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+                userDetailsPanel.add(new JLabel("Email: " + user.getEmail()));
+                userDetailsPanel.add(new JLabel("Role: " + user.getRole()));
+
+                userRow.add(userDetailsPanel, BorderLayout.CENTER);
+                userRow.add(buttonPanel, BorderLayout.EAST);
+            } else {
+                JPanel userDetailsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+                userDetailsPanel.add(new JLabel("Email: " + user.getEmail()));
+                userDetailsPanel.add(new JLabel("Role: " + user.getRole()));
+
+                userRow.add(userDetailsPanel, BorderLayout.CENTER);
+            }
 
             userPanel.add(userRow);
         }
@@ -92,3 +118,4 @@ public class UserManagementPanel extends JPanel {
         userPanel.repaint();
     }
 }
+

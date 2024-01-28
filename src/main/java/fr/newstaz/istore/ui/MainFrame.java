@@ -12,15 +12,12 @@ public class MainFrame extends JFrame {
     public MainFrame(Controller controller) {
         super("iStore");
         this.controller = controller;
-        setSize(800, 600);
+        setSize(1280, 720);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         LoginPanel loginPanel = new LoginPanel(controller, this);
 
         add(loginPanel);
-        /*HomePanel homePanel = new HomePanel(controller, this);
-
-        add(homePanel);*/
 
         setLocationRelativeTo(null);
         setVisible(true);
