@@ -7,11 +7,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 public class Database {
-
     private final Connection connection;
-
     private final Executor executor = new ScheduledThreadPoolExecutor(2);
-
     public Database(String url, String user, String password) throws SQLException {
         this.connection = DriverManager.getConnection(url, user, password);
     }

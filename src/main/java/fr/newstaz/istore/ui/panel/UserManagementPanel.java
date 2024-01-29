@@ -46,7 +46,6 @@ public class UserManagementPanel extends JPanel {
                 mainFrame.setContentPane(new AddUserPanel(controller, mainFrame));
                 mainFrame.revalidate();
             }));
-
             bottomPanel.add(addButton);
         }
 

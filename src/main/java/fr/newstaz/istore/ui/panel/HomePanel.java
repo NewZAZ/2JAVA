@@ -27,6 +27,14 @@ public class HomePanel extends JPanel {
             });
         });
 
+        JButton addStore = new JButton("Add store");
+        addStore.addActionListener(e -> {
+            SwingUtilities.invokeLater(() -> {
+                mainFrame.setContentPane(new AddStorePanel());
+                mainFrame.revalidate();
+            });
+        });
         add(userManagementButton);
+
     }
 }
