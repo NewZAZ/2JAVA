@@ -16,5 +16,7 @@ public interface StoreRepository {
 
     void addEmployee(Store store, User user);
 
-    void isEmployeeAlreadyAdded(User user, Store store);
+    boolean isEmployeeAlreadyAdded(User user, Store store);
+
+    List<User> getEmployees(Store store);
 }

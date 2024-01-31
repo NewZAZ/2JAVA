@@ -7,6 +7,7 @@ import fr.newstaz.istore.database.Database;
 import fr.newstaz.istore.model.Store;
 import fr.newstaz.istore.model.User;
 import fr.newstaz.istore.repository.StoreRepository;
+import fr.newstaz.istore.repository.UserRepository;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -17,11 +18,11 @@ public class StoreCache implements StoreRepository {
 
     private final StoreDAO storeDAO;
 
-    public StoreCache(Database database) {
+    public StoreCache(Database database, UserRepository userRepository) {
         this.stores = CacheBuilder.newBuilder()
                 .expireAfterWrite(10, TimeUnit.MINUTES)
                 .build();
-        this.storeDAO = new StoreDAO(database);
+        this.storeDAO = new StoreDAO(database, userRepository);
     }
 
     @Override
@@ -41,7 +42,7 @@ public class StoreCache implements StoreRepository {
             this.stores.put("stores", stores);
         }
 
-        return storeDAO.getStore(name);
+        return stores.stream().filter(store -> store.getName().equals(name)).findFirst().orElse(null);
     }
 
     @Override
@@ -63,15 +64,17 @@ public class StoreCache implements StoreRepository {
 
     @Override
     public void addEmployee(Store store, User user) {
-        isEmployeeAlreadyAdded(user, store);
-
+        storeDAO.addEmployee(store, user);
         stores.invalidateAll();
     }
 
     @Override
-    public void isEmployeeAlreadyAdded(User user, Store store) {
-        storeDAO.isEmployeeAlreadyAdded(user, store);
+    public boolean isEmployeeAlreadyAdded(User user, Store store) {
+        return storeDAO.isEmployeeAlreadyAdded(user, store);
+    }
 
-        stores.invalidateAll();
+    @Override
+    public List<User> getEmployees(Store store) {
+        return storeDAO.getEmployees(store);
     }
 }

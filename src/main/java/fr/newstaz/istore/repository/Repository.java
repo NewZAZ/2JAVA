@@ -12,7 +12,7 @@ public class Repository {
 
     public Repository(Database database) {
         this.userRepository = new UserCache(database);
-        this.storeRepository = new StoreCache(database);
+        this.storeRepository = new StoreCache(database, userRepository);
     }
 
     public UserRepository getUserRepository() {

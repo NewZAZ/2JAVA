@@ -3,6 +3,7 @@ package fr.newstaz.istore.ui.panel;
 import fr.newstaz.istore.controller.Controller;
 import fr.newstaz.istore.model.Store;
 import fr.newstaz.istore.model.User;
+import fr.newstaz.istore.response.StoreResponse;
 import fr.newstaz.istore.ui.component.ToastComponent;
 
 import javax.swing.*;
@@ -78,20 +79,24 @@ public class AddUserToStorePanel extends JPanel {
         addButton.addActionListener(e -> {
             String storeName = (String) storeBox.getSelectedItem();
             String userEmail = (String) userBox.getSelectedItem();
-            if (storeName.isEmpty() || userEmail.isEmpty()) {
-                ToastComponent.showFailedToast(this, "Store and user cannot be empty");
+            if (storeName == null || userEmail == null) {
+                ToastComponent.showFailedToast(this, "Store or user cannot be empty");
                 return;
             }
+
             Store store = controller.getStoreController().getStore(storeName);
             User user = controller.getUserController().getUser(userEmail);
-            if (store == null || user == null) {
-                ToastComponent.showFailedToast(this, "Store or user not found");
-            } else if (controller.getStoreController().isEmployeeAlreadyAdded(store, user.getEmail()).success()) {
-                ToastComponent.showFailedToast(this, "User already added to store");
-            }else {
-                controller.getStoreController().addEmployee(store, user.getEmail());
-                ToastComponent.showSuccessToast(this, "User added to store");
+
+            StoreResponse.AddEmployeeResponse addEmployeeResponse = controller.getStoreController().addEmployee(store, user.getEmail());
+            if (!addEmployeeResponse.success()) {
+                ToastComponent.showFailedToast(this, addEmployeeResponse.message());
+                return;
             }
+            ToastComponent.showSuccessToast(this, addEmployeeResponse.message());
+            SwingUtilities.invokeLater(() -> {
+                mainFrame.setContentPane(new StoreManagement(controller, mainFrame));
+                mainFrame.revalidate();
+            });
         });
     }
 

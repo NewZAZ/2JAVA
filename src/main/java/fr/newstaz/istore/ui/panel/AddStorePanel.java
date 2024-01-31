@@ -1,6 +1,7 @@
 package fr.newstaz.istore.ui.panel;
 
 import fr.newstaz.istore.controller.Controller;
+import fr.newstaz.istore.response.StoreResponse;
 import fr.newstaz.istore.ui.component.ToastComponent;
 
 import javax.swing.*;
@@ -41,15 +42,15 @@ public class AddStorePanel extends JPanel {
                 ToastComponent.showFailedToast(this, "Name cannot be empty");
                 return;
             }
-            boolean success = controller.getStoreController().createStore(name).success();
-            if (success) {
-                ToastComponent.showSuccessToast(this, "Store created");
+            StoreResponse.CreateStoreResponse store = controller.getStoreController().createStore(name);
+            if (store.success()) {
+                ToastComponent.showSuccessToast(this, store.message());
                 SwingUtilities.invokeLater(() -> {
-                    mainFrame.setContentPane(new HomePanel(controller, mainFrame));
+                    mainFrame.setContentPane(new StoreManagement(controller, mainFrame));
                     mainFrame.revalidate();
                 });
             } else {
-                ToastComponent.showFailedToast(this, "Store already exists");
+                ToastComponent.showFailedToast(this, store.message());
             }
         });
         add(createButton, gbc);

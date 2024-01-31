@@ -32,6 +32,19 @@ public class UserCache implements UserRepository {
     }
 
     @Override
+    public User getUser(int id) {
+        List<User> users = this.users.getIfPresent("users");
+
+        if (users == null) {
+            users = userDAO.getAllUsers();
+
+            this.users.put("users", users);
+        }
+
+        return users.stream().filter(user -> user.getId() == id).findFirst().orElse(null);
+    }
+
+    @Override
     public User getUser(String login) {
         List<User> users = this.users.getIfPresent("users");
 
@@ -41,7 +54,7 @@ public class UserCache implements UserRepository {
             this.users.put("users", users);
         }
 
-        return userDAO.getUser(login);
+        return users.stream().filter(user -> user.getEmail().equals(login)).findFirst().orElse(null);
     }
 
     @Override

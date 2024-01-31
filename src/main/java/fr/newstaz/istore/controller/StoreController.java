@@ -35,6 +35,7 @@ public class StoreController {
     public Store getStore(String name) {
         return repository.getStoreRepository().getStore(name);
     }
+
     public List<Store> getAllStore(Predicate<Store> predicate) {
         return repository.getStoreRepository().getAllStores().stream().filter(predicate).toList();
     }
@@ -47,21 +48,16 @@ public class StoreController {
         return getAllStore(user -> user.getName().toLowerCase().contains(text.toLowerCase()));
     }
 
-    public void addEmployee(Store store, String username) {
+    public StoreResponse.AddEmployeeResponse addEmployee(Store store, String username) {
         if (repository.getUserRepository().getUser(username) == null) {
-            return;
+            return new StoreResponse.AddEmployeeResponse(false, "User not found");
         }
-        repository.getStoreRepository().addEmployee(store, repository.getUserRepository().getUser(username));
-    }
 
-    public StoreResponse isEmployeeAlreadyAdded(Store store, String username) {
-        if (repository.getUserRepository().getUser(username) == null) {
-            return new StoreResponse(false, "User not found");
+        if (repository.getStoreRepository().isEmployeeAlreadyAdded(repository.getUserRepository().getUser(username), store)) {
+            return new StoreResponse.AddEmployeeResponse(false, "User already added");
         }
-        if (repository.getStoreRepository().getStore(store.getName()) == null) {
-            return new StoreResponse(false, "Store not found");
-        }
-        repository.getStoreRepository().isEmployeeAlreadyAdded(repository.getUserRepository().getUser(username), store);
-        return new StoreResponse(true, "User is already added");
+
+        repository.getStoreRepository().addEmployee(store, repository.getUserRepository().getUser(username));
+        return new StoreResponse.AddEmployeeResponse(true, "User added");
     }
 }

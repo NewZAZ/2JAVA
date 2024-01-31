@@ -4,6 +4,7 @@ import fr.newstaz.istore.database.Database;
 import fr.newstaz.istore.model.Store;
 import fr.newstaz.istore.model.User;
 import fr.newstaz.istore.repository.StoreRepository;
+import fr.newstaz.istore.repository.UserRepository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,9 +16,12 @@ import java.util.List;
 public class StoreDAO implements StoreRepository {
     private final Database database;
 
-    public StoreDAO(Database database) {
+    private final UserRepository userRepository;
+
+    public StoreDAO(Database database, UserRepository userRepository) {
         this.database = database;
-        CreateTable();
+        this.userRepository = userRepository;
+        createTable();
     }
 
     @Override
@@ -73,10 +77,12 @@ public class StoreDAO implements StoreRepository {
         try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM stores")) {
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                stores.add(new Store(
+                Store store = new Store(
                         resultSet.getInt("id"),
                         resultSet.getString("name")
-                ));
+                );
+                store.setEmployees(getEmployees(store));
+                stores.add(store);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -99,25 +105,39 @@ public class StoreDAO implements StoreRepository {
     }
 
     @Override
-    public void isEmployeeAlreadyAdded(User user, Store store) {
+    public boolean isEmployeeAlreadyAdded(User user, Store store) {
         Connection connection = database.getConnection();
-        database.execute(() -> {
-            try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM stores_employee WHERE store_id = ? AND employee_id = ?")) {
-                statement.setInt(1, store.getId());
-                statement.setInt(2, user.getId());
-                if (statement.executeQuery().next()) {
-                    addEmployee(store, user);
-                }else{
-                    throw new RuntimeException("User not added");
-                }
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM stores_employee WHERE store_id = ? AND employee_id = ?")) {
+            statement.setInt(1, store.getId());
+            statement.setInt(2, user.getId());
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return true;
             }
-        });
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return false;
+    }
+
+    @Override
+    public List<User> getEmployees(Store store) {
+        Connection connection = database.getConnection();
+        List<User> users = new ArrayList<>();
+        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM stores_employee WHERE store_id = ?")) {
+            statement.setInt(1, store.getId());
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                users.add(userRepository.getUser(resultSet.getInt("employee_id")));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return users;
     }
 
 
-    public void CreateTable() {
+    public void createTable() {
         Connection connection = database.getConnection();
         database.execute(() -> {
             try (PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS stores (id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(100) UNIQUE NOT NULL)"
@@ -126,8 +146,7 @@ public class StoreDAO implements StoreRepository {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
-        });
-        database.execute(() -> {
+
             try (PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS stores_employee (id INT PRIMARY KEY AUTO_INCREMENT, store_id INT NOT NULL, employee_id INT NOT NULL, FOREIGN KEY (store_id) REFERENCES stores(id), FOREIGN KEY (employee_id) REFERENCES employees(id))"
             )) {
                 statement.executeUpdate();
@@ -136,4 +155,5 @@ public class StoreDAO implements StoreRepository {
             }
         });
     }
+
 }
