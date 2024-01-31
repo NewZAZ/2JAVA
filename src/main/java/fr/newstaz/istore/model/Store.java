@@ -1,9 +1,13 @@
 package fr.newstaz.istore.model;
 
 public class Store {
-    private final int id;
+    private int id;
 
     private final String name;
+
+    public Store(String name) {
+        this.name = name;
+    }
 
     public Store(int id, String name) {
         this.id = id;

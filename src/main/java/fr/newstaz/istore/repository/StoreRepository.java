@@ -10,8 +10,6 @@ public interface StoreRepository {
 
     Store getStore(String name);
 
-    void updateStore(Store store);
-
     void deleteStore(Store store);
     List<Store> getAllStores();
 }

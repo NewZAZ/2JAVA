@@ -16,13 +16,14 @@ public class StoreDAO implements StoreRepository {
 
     public StoreDAO(Database database) {
         this.database = database;
+        CreateTable();
     }
 
     @Override
     public void createStore(Store store) {
         Connection connection = database.getConnection();
         database.execute(() -> {
-            try (PreparedStatement statement = connection.prepareStatement("INSERT INTO stores (name, address, phone, email, website, description) VALUES (?, ?, ?, ?, ?, ?)")) {
+            try (PreparedStatement statement = connection.prepareStatement("INSERT INTO stores (name) VALUES (?)")) {
                 statement.setString(1, store.getName());
                 statement.executeUpdate();
             } catch (SQLException e) {
@@ -37,7 +38,6 @@ public class StoreDAO implements StoreRepository {
         try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM stores WHERE name = ?")) {
             statement.setString(1, name);
             ResultSet resultSet = statement.executeQuery();
-
             if (resultSet.next()) {
                 return new Store(
                         resultSet.getInt("id"),
@@ -51,32 +51,18 @@ public class StoreDAO implements StoreRepository {
     }
 
     @Override
-    public void updateStore(Store store) {
-        Connection connection = database.getConnection();
-        database.execute(() -> {
-            try (PreparedStatement statement = connection.prepareStatement("UPDATE stores SET name = ? WHERE id = ?")) {
-                statement.setString(1, store.getName());
-                statement.setInt(2, store.getId());
-                statement.executeUpdate();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        });
-
-    }
-
-    @Override
     public void deleteStore(Store store) {
         Connection connection = database.getConnection();
         database.execute(() -> {
             try (PreparedStatement statement = connection.prepareStatement("DELETE FROM stores WHERE id = ?")) {
+                System.out.println(store.getId());
                 statement.setInt(1, store.getId());
                 statement.executeUpdate();
             } catch (SQLException e) {
+                e.printStackTrace();
                 throw new RuntimeException(e);
             }
         });
-
     }
 
     @Override
@@ -95,6 +81,19 @@ public class StoreDAO implements StoreRepository {
             throw new RuntimeException(e);
         }
         return stores;
+    }
+
+    public void CreateTable() {
+        Connection connection = database.getConnection();
+
+        database.execute(() -> {
+            try (PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS stores (id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(100) UNIQUE NOT NULL)"
+            )) {
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
 }

@@ -8,9 +8,12 @@ public class Controller {
 
     private final UserController userController;
 
+    private final StoreController storeController;
+
     public Controller(Repository repository) {
         this.userController = new UserController(repository);
         this.authenticationController = new AuthenticationController(repository, userController);
+        this.storeController = new StoreController(repository);
     }
 
     public AuthenticationController getAuthenticationController() {
@@ -19,5 +22,9 @@ public class Controller {
 
     public UserController getUserController() {
         return userController;
+    }
+
+    public StoreController getStoreController() {
+        return storeController;
     }
 }
