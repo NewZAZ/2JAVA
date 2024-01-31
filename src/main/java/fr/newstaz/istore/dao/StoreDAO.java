@@ -2,6 +2,7 @@ package fr.newstaz.istore.dao;
 
 import fr.newstaz.istore.database.Database;
 import fr.newstaz.istore.model.Store;
+import fr.newstaz.istore.model.User;
 import fr.newstaz.istore.repository.StoreRepository;
 
 import java.sql.Connection;
@@ -83,9 +84,41 @@ public class StoreDAO implements StoreRepository {
         return stores;
     }
 
+    @Override
+    public void addEmployee(Store store, User user) {
+        Connection connection = database.getConnection();
+        database.execute(() -> {
+            try (PreparedStatement statement = connection.prepareStatement("INSERT INTO stores_employee (store_id, employee_id) VALUES (?, ?)")) {
+                statement.setInt(1, store.getId());
+                statement.setInt(2, user.getId());
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    @Override
+    public void isEmployeeAlreadyAdded(User user, Store store) {
+        Connection connection = database.getConnection();
+        database.execute(() -> {
+            try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM stores_employee WHERE store_id = ? AND employee_id = ?")) {
+                statement.setInt(1, store.getId());
+                statement.setInt(2, user.getId());
+                if (statement.executeQuery().next()) {
+                    addEmployee(store, user);
+                }else{
+                    throw new RuntimeException("User not added");
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+
     public void CreateTable() {
         Connection connection = database.getConnection();
-
         database.execute(() -> {
             try (PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS stores (id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(100) UNIQUE NOT NULL)"
             )) {
@@ -94,6 +127,13 @@ public class StoreDAO implements StoreRepository {
                 throw new RuntimeException(e);
             }
         });
+        database.execute(() -> {
+            try (PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS stores_employee (id INT PRIMARY KEY AUTO_INCREMENT, store_id INT NOT NULL, employee_id INT NOT NULL, FOREIGN KEY (store_id) REFERENCES stores(id), FOREIGN KEY (employee_id) REFERENCES employees(id))"
+            )) {
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
-
 }

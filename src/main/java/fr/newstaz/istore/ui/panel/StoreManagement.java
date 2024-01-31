@@ -42,6 +42,14 @@ public class StoreManagement extends JPanel {
         // Bottom panel for buttons
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
+        // Add employee button
+        JButton addEmployeeButton = new JButton("AJOUTER UN EMPLOYÉ");
+        addEmployeeButton.addActionListener(e -> SwingUtilities.invokeLater(() -> {
+            mainFrame.setContentPane(new AddUserToStorePanel(controller, mainFrame));
+            mainFrame.revalidate();
+        }));
+        bottomPanel.add(addEmployeeButton);
+
         // Add store button
         addButton = new JButton("AJOUTER UN MAGASIN");
         addButton.addActionListener(e -> SwingUtilities.invokeLater(() -> {

@@ -5,6 +5,7 @@ import com.google.common.cache.CacheBuilder;
 import fr.newstaz.istore.dao.StoreDAO;
 import fr.newstaz.istore.database.Database;
 import fr.newstaz.istore.model.Store;
+import fr.newstaz.istore.model.User;
 import fr.newstaz.istore.repository.StoreRepository;
 
 import java.util.List;
@@ -58,5 +59,19 @@ public class StoreCache implements StoreRepository {
             this.stores.put("stores", stores);
         }
         return stores;
+    }
+
+    @Override
+    public void addEmployee(Store store, User user) {
+        isEmployeeAlreadyAdded(user, store);
+
+        stores.invalidateAll();
+    }
+
+    @Override
+    public void isEmployeeAlreadyAdded(User user, Store store) {
+        storeDAO.isEmployeeAlreadyAdded(user, store);
+
+        stores.invalidateAll();
     }
 }

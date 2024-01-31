@@ -1,6 +1,7 @@
 package fr.newstaz.istore.repository;
 
 import fr.newstaz.istore.model.Store;
+import fr.newstaz.istore.model.User;
 
 import java.util.List;
 
@@ -12,4 +13,8 @@ public interface StoreRepository {
 
     void deleteStore(Store store);
     List<Store> getAllStores();
+
+    void addEmployee(Store store, User user);
+
+    void isEmployeeAlreadyAdded(User user, Store store);
 }

@@ -97,4 +97,8 @@ public class UserController {
         user.setVerified(true);
         repository.getUserRepository().updateUser(user);
     }
+
+    public User getUser(String email) {
+        return repository.getUserRepository().getUser(email);
+    }
 }
