@@ -101,4 +101,8 @@ public class UserController {
     public User getUser(String email) {
         return repository.getUserRepository().getUser(email);
     }
+
+    public User getUserById(int id) {
+        return repository.getUserRepository().getUserById(id);
+    }
 }

@@ -3,8 +3,8 @@ package fr.newstaz.istore.dao;
 import fr.newstaz.istore.database.Database;
 import fr.newstaz.istore.model.Store;
 import fr.newstaz.istore.model.User;
+import fr.newstaz.istore.repository.InventoryRepository;
 import fr.newstaz.istore.repository.StoreRepository;
-import fr.newstaz.istore.repository.UserRepository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,11 +16,11 @@ import java.util.List;
 public class StoreDAO implements StoreRepository {
     private final Database database;
 
-    private final UserRepository userRepository;
+    private final InventoryRepository inventoryRepository;
 
-    public StoreDAO(Database database, UserRepository userRepository) {
+    public StoreDAO(Database database, InventoryRepository inventoryRepository) {
         this.database = database;
-        this.userRepository = userRepository;
+        this.inventoryRepository = inventoryRepository;
         createTable();
     }
 
@@ -81,6 +81,7 @@ public class StoreDAO implements StoreRepository {
                         resultSet.getInt("id"),
                         resultSet.getString("name")
                 );
+                store.setInventory(inventoryRepository.getInventory(store.getId()));
                 store.setEmployees(getEmployees(store));
                 stores.add(store);
             }
@@ -95,6 +96,19 @@ public class StoreDAO implements StoreRepository {
         Connection connection = database.getConnection();
         database.execute(() -> {
             try (PreparedStatement statement = connection.prepareStatement("INSERT INTO stores_employee (store_id, employee_id) VALUES (?, ?)")) {
+                statement.setInt(1, store.getId());
+                statement.setInt(2, user.getId());
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+    @Override
+    public void removeEmployee(Store store, User user) {
+        Connection connection = database.getConnection();
+        database.execute(() -> {
+            try (PreparedStatement statement = connection.prepareStatement("DELETE FROM stores_employee WHERE store_id = ? AND employee_id = ?")) {
                 statement.setInt(1, store.getId());
                 statement.setInt(2, user.getId());
                 statement.executeUpdate();
@@ -119,16 +133,24 @@ public class StoreDAO implements StoreRepository {
         }
         return false;
     }
-
     @Override
     public List<User> getEmployees(Store store) {
         Connection connection = database.getConnection();
         List<User> users = new ArrayList<>();
-        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM stores_employee WHERE store_id = ?")) {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT u.* FROM users u " +
+                        "LEFT JOIN stores_employee se ON u.id = se.employee_id " +
+                        "WHERE se.store_id = ?")) {
             statement.setInt(1, store.getId());
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                users.add(userRepository.getUser(resultSet.getInt("employee_id")));
+                users.add(new User(
+                        resultSet.getInt("id"),
+                        resultSet.getString("email"),
+                        resultSet.getString("password"),
+                        User.Role.valueOf(resultSet.getString("role")),
+                        resultSet.getBoolean("is_verified")
+                ));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);

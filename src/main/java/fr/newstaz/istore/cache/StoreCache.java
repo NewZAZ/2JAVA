@@ -6,8 +6,8 @@ import fr.newstaz.istore.dao.StoreDAO;
 import fr.newstaz.istore.database.Database;
 import fr.newstaz.istore.model.Store;
 import fr.newstaz.istore.model.User;
+import fr.newstaz.istore.repository.InventoryRepository;
 import fr.newstaz.istore.repository.StoreRepository;
-import fr.newstaz.istore.repository.UserRepository;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -18,11 +18,11 @@ public class StoreCache implements StoreRepository {
 
     private final StoreDAO storeDAO;
 
-    public StoreCache(Database database, UserRepository userRepository) {
+    public StoreCache(Database database, InventoryRepository inventoryRepository) {
         this.stores = CacheBuilder.newBuilder()
                 .expireAfterWrite(10, TimeUnit.MINUTES)
                 .build();
-        this.storeDAO = new StoreDAO(database, userRepository);
+        this.storeDAO = new StoreDAO(database, inventoryRepository);
     }
 
     @Override
@@ -76,5 +76,17 @@ public class StoreCache implements StoreRepository {
     @Override
     public List<User> getEmployees(Store store) {
         return storeDAO.getEmployees(store);
+    }
+
+
+    @Override
+    public void removeEmployee(Store store, User user) {
+        storeDAO.removeEmployee(store, user);
+
+        stores.invalidateAll();
+    }
+
+    public void invalidCache() {
+        stores.invalidateAll();
     }
 }

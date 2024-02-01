@@ -85,6 +85,27 @@ public class UserDAO implements UserRepository {
     }
 
     @Override
+    public User getUserById(int id) {
+        Connection connection = database.getConnection();
+        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM users WHERE id = ?")) {
+            statement.setInt(1, id);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return new User(
+                        resultSet.getInt("id"),
+                        resultSet.getString("email"),
+                        resultSet.getString("password"),
+                        User.Role.valueOf(resultSet.getString("role") == null ? "USER" : resultSet.getString("role")),
+                        resultSet.getBoolean("is_verified")
+                );
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
+    @Override
     public void updateUser(User user) {
         Connection connection = database.getConnection();
 

@@ -10,6 +10,8 @@ public class Store {
 
     private final List<User> employees = new ArrayList<>();
 
+    private Inventory inventory;
+
     public Store(String name) {
         this.name = name;
     }
@@ -50,5 +52,13 @@ public class Store {
     public void setEmployees(List<User> employees) {
         this.employees.clear();
         this.employees.addAll(employees);
+    }
+
+    public Inventory getInventory() {
+        return inventory;
+    }
+
+    public void setInventory(Inventory inventory) {
+        this.inventory = inventory;
     }
 }

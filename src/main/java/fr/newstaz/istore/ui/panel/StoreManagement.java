@@ -101,10 +101,22 @@ public class StoreManagement extends JPanel {
                     ToastComponent.showFailedToast(this, "Store not deleted");
                 }
             });
+            JButton manageEmployeesButton = new JButton("MANAGE EMPLOYEES");
+            manageEmployeesButton.addActionListener(e -> SwingUtilities.invokeLater(() -> {
+                mainFrame.setContentPane(new UsersInStore(mainFrame, controller, store));
+                mainFrame.revalidate();
+            }));
+            JButton manageInventoryButton = new JButton("MANAGE INVENTORY");
+            manageInventoryButton.addActionListener(e -> SwingUtilities.invokeLater(() -> {
+                mainFrame.setContentPane(new InventoryManagement(mainFrame, controller, store));
+                mainFrame.revalidate();
+            }));
             JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             JPanel storeDetailsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
             storeDetailsPanel.add(new JLabel("Store Name: " + store.getName()));
 
+            buttonPanel.add(manageInventoryButton);
+            buttonPanel.add(manageEmployeesButton);
             buttonPanel.add(deleteButton);
             storeRow.add(storeDetailsPanel, BorderLayout.CENTER);
             storeRow.add(buttonPanel, BorderLayout.EAST);

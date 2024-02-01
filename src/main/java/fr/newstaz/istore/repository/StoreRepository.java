@@ -19,4 +19,7 @@ public interface StoreRepository {
     boolean isEmployeeAlreadyAdded(User user, Store store);
 
     List<User> getEmployees(Store store);
+
+    void removeEmployee(Store store, User user);
+
 }
