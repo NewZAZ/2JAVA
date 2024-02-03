@@ -13,9 +13,27 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * StoreDAO class to manage the store DAO
+ *
+ * @version 1.0
+ * @see StoreRepository
+ * @see Store
+ */
 public class StoreDAO implements StoreRepository {
+
+    /**
+     * Database instance
+     *
+     * @see Database
+     */
     private final Database database;
 
+    /**
+     * InventoryRepository instance
+     *
+     * @see InventoryRepository
+     */
     private final InventoryRepository inventoryRepository;
 
     public StoreDAO(Database database, InventoryRepository inventoryRepository) {
@@ -24,19 +42,30 @@ public class StoreDAO implements StoreRepository {
         createTable();
     }
 
+    /**
+     * Create a store
+     *
+     * @param store the store to create
+     * @return the created store
+     */
     @Override
-    public void createStore(Store store) {
+    public Store createStore(Store store) {
         Connection connection = database.getConnection();
-        database.execute(() -> {
-            try (PreparedStatement statement = connection.prepareStatement("INSERT INTO stores (name) VALUES (?)")) {
-                statement.setString(1, store.getName());
-                statement.executeUpdate();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO stores (name) VALUES (?)")) {
+            statement.setString(1, store.getName());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return getStore(store.getName());
     }
 
+    /**
+     * Get a store by name
+     *
+     * @param name the name of the store
+     * @return the store
+     */
     @Override
     public Store getStore(String name) {
         Connection connection = database.getConnection();
@@ -55,12 +84,24 @@ public class StoreDAO implements StoreRepository {
         return null;
     }
 
+    /**
+     * Delete a store and its employees
+     *
+     * @param store the store to delete
+     */
     @Override
     public void deleteStore(Store store) {
         Connection connection = database.getConnection();
         database.execute(() -> {
             try (PreparedStatement statement = connection.prepareStatement("DELETE FROM stores WHERE id = ?")) {
-                System.out.println(store.getId());
+                statement.setInt(1, store.getId());
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+
+            try (PreparedStatement statement = connection.prepareStatement("DELETE FROM stores_employee WHERE store_id = ?")) {
                 statement.setInt(1, store.getId());
                 statement.executeUpdate();
             } catch (SQLException e) {
@@ -70,6 +111,11 @@ public class StoreDAO implements StoreRepository {
         });
     }
 
+    /**
+     * Get all stores
+     *
+     * @return the list of stores
+     */
     @Override
     public List<Store> getAllStores() {
         Connection connection = database.getConnection();
@@ -91,6 +137,12 @@ public class StoreDAO implements StoreRepository {
         return stores;
     }
 
+    /**
+     * Add an employee to a store
+     *
+     * @param store the store
+     * @param user  the user to add
+     */
     @Override
     public void addEmployee(Store store, User user) {
         Connection connection = database.getConnection();
@@ -104,6 +156,13 @@ public class StoreDAO implements StoreRepository {
             }
         });
     }
+
+    /**
+     * Remove an employee from a store
+     *
+     * @param store the store
+     * @param user  the user to remove
+     */
     @Override
     public void removeEmployee(Store store, User user) {
         Connection connection = database.getConnection();
@@ -118,6 +177,13 @@ public class StoreDAO implements StoreRepository {
         });
     }
 
+    /**
+     * Check if an employee is already added to a store
+     *
+     * @param user  the user
+     * @param store the store
+     * @return true if the employee is already added, false otherwise
+     */
     @Override
     public boolean isEmployeeAlreadyAdded(User user, Store store) {
         Connection connection = database.getConnection();
@@ -133,6 +199,13 @@ public class StoreDAO implements StoreRepository {
         }
         return false;
     }
+
+    /**
+     * Get the employees of a store
+     *
+     * @param store the store
+     * @return the list of employees
+     */
     @Override
     public List<User> getEmployees(Store store) {
         Connection connection = database.getConnection();
@@ -158,7 +231,9 @@ public class StoreDAO implements StoreRepository {
         return users;
     }
 
-
+    /**
+     * Create the stores and stores_employee tables
+     */
     public void createTable() {
         Connection connection = database.getConnection();
         database.execute(() -> {

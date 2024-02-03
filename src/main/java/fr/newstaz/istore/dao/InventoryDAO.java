@@ -10,14 +10,37 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * InventoryDAO class to manage the inventory DAO
+ *
+ * @version 1.0
+ * @see Inventory
+ * @see InventoryRepository
+ */
 public class InventoryDAO implements InventoryRepository {
+
+    /**
+     * Database instance
+     *
+     * @see Database
+     */
     private final Database database;
 
+    /**
+     * InventoryDAO constructor
+     *
+     * @param database the database
+     */
     public InventoryDAO(Database database) {
         this.database = database;
         createTable();
     }
 
+    /**
+     * Create an inventory
+     *
+     * @param inventory the inventory to create
+     */
     @Override
     public void createInventory(Inventory inventory) {
         Connection connection = database.getConnection();
@@ -30,7 +53,6 @@ public class InventoryDAO implements InventoryRepository {
                 throw new RuntimeException(e);
             }
 
-            // Insert InventoryItems
             for (InventoryItem item : inventory.getItems()) {
                 try {
                     createInventoryItem(connection, inventory.getId(), item);
@@ -41,6 +63,12 @@ public class InventoryDAO implements InventoryRepository {
         });
     }
 
+    /**
+     * Get an inventory by id
+     *
+     * @param id the id of the inventory
+     * @return the inventory
+     */
     @Override
     public Inventory getInventory(int id) {
         Connection connection = database.getConnection();
@@ -53,7 +81,7 @@ public class InventoryDAO implements InventoryRepository {
             statement.setInt(1, id);
             ResultSet resultSet = statement.executeQuery();
 
-            if (resultSet.next()) {  // Vérifiez s'il y a au moins une ligne dans le résultat
+            if (resultSet.next()) {
                 inventory = new Inventory(resultSet.getInt("inventory.id"), resultSet.getInt("inventory.store_id"));
 
                 do {
@@ -64,7 +92,7 @@ public class InventoryDAO implements InventoryRepository {
                     );
                     item.setQuantity(resultSet.getInt("inventory_items.quantity"));
                     inventory.addItem(item);
-                } while (resultSet.next());  // Continuez tant qu'il y a des lignes dans le résultat
+                } while (resultSet.next());
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -74,6 +102,11 @@ public class InventoryDAO implements InventoryRepository {
         return inventory;
     }
 
+    /**
+     * Update an inventory
+     *
+     * @param inventory the inventory to update
+     */
     @Override
     public void updateInventory(Inventory inventory) {
         Connection connection = database.getConnection();
@@ -88,6 +121,11 @@ public class InventoryDAO implements InventoryRepository {
         });
     }
 
+    /**
+     * Delete an inventory
+     *
+     * @param inventory the inventory to delete
+     */
     @Override
     public void deleteInventory(Inventory inventory) {
         Connection connection = database.getConnection();
@@ -107,6 +145,12 @@ public class InventoryDAO implements InventoryRepository {
         });
     }
 
+    /**
+     * Add an item to an inventory
+     *
+     * @param inventory the inventory
+     * @param item      the item to add
+     */
     @Override
     public void addItemToInventory(Inventory inventory, InventoryItem item) {
         Connection connection = database.getConnection();
@@ -119,6 +163,12 @@ public class InventoryDAO implements InventoryRepository {
         });
     }
 
+    /**
+     * Update an item in an inventory
+     *
+     * @param inventory the inventory
+     * @param item      the item to update
+     */
     @Override
     public void updateItemInInventory(Inventory inventory, InventoryItem item) {
         Connection connection = database.getConnection();
@@ -148,6 +198,9 @@ public class InventoryDAO implements InventoryRepository {
 
     }
 
+    /**
+     * Create the inventory table
+     */
     private void createTable() {
         Connection connection = database.getConnection();
         database.execute(() -> {
@@ -177,6 +230,14 @@ public class InventoryDAO implements InventoryRepository {
         });
     }
 
+    /**
+     * Create an inventory item
+     *
+     * @param connection  the connection
+     * @param inventoryId the inventory id
+     * @param item        the item to create
+     * @throws SQLException if a database access error occurs
+     */
     private void createInventoryItem(Connection connection, int inventoryId, InventoryItem item) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(
                 "INSERT INTO inventory_items (inventory_id, name, price, quantity) VALUES (?, ?, ?, ?)")) {
@@ -188,6 +249,14 @@ public class InventoryDAO implements InventoryRepository {
         }
     }
 
+    /**
+     * Update an inventory item
+     *
+     * @param connection  the connection
+     * @param inventoryId the inventory id
+     * @param item        the item to update
+     * @throws SQLException if a database access error occurs
+     */
     private void updateInventoryItem(Connection connection, int inventoryId, InventoryItem item) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(
                 "UPDATE inventory_items SET name = ?, price = ?, quantity = ? " +

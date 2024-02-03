@@ -1,4 +1,4 @@
-package fr.newstaz.istore.ui.panel;
+package fr.newstaz.istore.ui.panel.stores;
 
 import fr.newstaz.istore.controller.Controller;
 import fr.newstaz.istore.model.Store;
@@ -10,14 +10,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
-public class UsersInStore extends JPanel {
+public class UsersInStorePanel extends JPanel {
 
     private final JFrame mainFrame;
     private final Controller controller;
     private final Store store;
     private JPanel usersPanel;
 
-    public UsersInStore(JFrame mainFrame, Controller controller, Store store) {
+    public UsersInStorePanel(JFrame mainFrame, Controller controller, Store store) {
         this.mainFrame = mainFrame;
         this.controller = controller;
         this.store = store;
@@ -31,15 +31,19 @@ public class UsersInStore extends JPanel {
         usersPanel.setLayout(new BoxLayout(usersPanel, BoxLayout.Y_AXIS));
         displayUsers(controller.getStoreController().getEmployees(store));
 
-        // Wrap the usersPanel with a JScrollPane
         JScrollPane scrollPane = new JScrollPane(usersPanel);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
-        // Bottom panel
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
-        // Back button
+        JButton addEmployeeButton = new JButton("AJOUTER UN EMPLOYÉ");
+        addEmployeeButton.addActionListener(e -> SwingUtilities.invokeLater(() -> {
+            mainFrame.setContentPane(new AddUserToStorePanel(controller, mainFrame, store));
+            mainFrame.revalidate();
+        }));
+        bottomPanel.add(addEmployeeButton);
+
         JButton backButton = new JButton("BACK");
         backButton.addActionListener(e -> SwingUtilities.invokeLater(() -> {
             mainFrame.setContentPane(new StoreManagement(controller, mainFrame));
@@ -51,7 +55,6 @@ public class UsersInStore extends JPanel {
         add(bottomPanel, BorderLayout.SOUTH);
     }
 
-    // Method to display users with a "DELETE" button
     private void displayUsers(List<User> userList) {
         usersPanel.removeAll();
 
@@ -68,7 +71,7 @@ public class UsersInStore extends JPanel {
                 if (removeEmployeeResponse.success()) {
                     ToastComponent.showSuccessToast(this, removeEmployeeResponse.message());
                     SwingUtilities.invokeLater(() -> {
-                        mainFrame.setContentPane(new UsersInStore(mainFrame, controller, store));
+                        mainFrame.setContentPane(new UsersInStorePanel(mainFrame, controller, store));
                         mainFrame.revalidate();
                     });
                 } else {

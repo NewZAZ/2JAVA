@@ -1,4 +1,4 @@
-package fr.newstaz.istore.ui.panel;
+package fr.newstaz.istore.ui.panel.users;
 
 import fr.newstaz.istore.controller.Controller;
 import fr.newstaz.istore.model.User;
@@ -15,7 +15,7 @@ public class ModifyUserPanel extends JPanel {
 
     private JTextField emailField;
     private JPasswordField passwordField;
-    private JComboBox roleBox;
+    private JComboBox<User.Role> roleBox;
 
 
     public ModifyUserPanel(Controller controller, JFrame mainFrame, User user) {
@@ -67,7 +67,7 @@ public class ModifyUserPanel extends JPanel {
 
         gbc.gridy++;
         gbc.gridx = 0;
-        gbc.anchor = GridBagConstraints.CENTER; // Centrer horizontalement
+        gbc.anchor = GridBagConstraints.CENTER;
         gbc.gridwidth = 2;
         JButton editButton = new JButton("Modifier");
         editButton.addActionListener(e -> {
@@ -77,7 +77,7 @@ public class ModifyUserPanel extends JPanel {
 
         gbc.gridy++;
         gbc.gridx = 0;
-        gbc.anchor = GridBagConstraints.CENTER; // Centrer horizontalement
+        gbc.anchor = GridBagConstraints.CENTER;
         gbc.gridwidth = 2;
         JButton deleteButton = new JButton("Supprimer");
         deleteButton.addActionListener(e -> {
@@ -87,7 +87,7 @@ public class ModifyUserPanel extends JPanel {
 
         gbc.gridy++;
         gbc.gridx = 0;
-        gbc.anchor = GridBagConstraints.CENTER; // Centrer horizontalement
+        gbc.anchor = GridBagConstraints.CENTER;
         gbc.gridwidth = 2;
         JButton cancelButton = new JButton("Annuler");
         cancelButton.addActionListener(e -> SwingUtilities.invokeLater(() -> {
@@ -128,12 +128,13 @@ public class ModifyUserPanel extends JPanel {
     }
 
     private void performDelete(User user) {
-        if (!controller.getUserController().deleteUser(user)) {
-            ToastComponent.showFailedToast(this, "Impossible de supprimer l'utilisateur");
+        UserResponse.DeleteUserResponse deleteUserResponse = controller.getUserController().deleteUser(user);
+        if (!deleteUserResponse.success()) {
+            ToastComponent.showFailedToast(this, deleteUserResponse.message());
             return;
         }
 
-        ToastComponent.showSuccessToast(this, "Utilisateur supprimé avec succès");
+        ToastComponent.showSuccessToast(this, deleteUserResponse.message());
         SwingUtilities.invokeLater(() -> {
             mainFrame.setContentPane(new UserManagementPanel(controller, mainFrame));
             mainFrame.revalidate();

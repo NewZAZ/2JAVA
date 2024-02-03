@@ -1,8 +1,9 @@
-package fr.newstaz.istore.ui.panel;
+package fr.newstaz.istore.ui.panel.stores;
 
 import fr.newstaz.istore.controller.Controller;
 import fr.newstaz.istore.response.StoreResponse;
 import fr.newstaz.istore.ui.component.ToastComponent;
+import fr.newstaz.istore.ui.panel.HomePanel;
 
 import javax.swing.*;
 import java.awt.*;

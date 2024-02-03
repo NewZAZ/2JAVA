@@ -1,4 +1,4 @@
-package fr.newstaz.istore.ui.panel;
+package fr.newstaz.istore.ui.panel.users;
 
 import fr.newstaz.istore.controller.Controller;
 import fr.newstaz.istore.model.User;
@@ -15,7 +15,7 @@ public class AddUserPanel extends JPanel {
 
     private JTextField emailField;
     private JPasswordField passwordField;
-    private JComboBox roleBox;
+    private JComboBox<User.Role> roleBox;
 
     public AddUserPanel(Controller controller, JFrame mainFrame) {
         this.controller = controller;

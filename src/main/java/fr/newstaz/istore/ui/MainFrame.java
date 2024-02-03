@@ -7,11 +7,8 @@ import javax.swing.*;
 
 public class MainFrame extends JFrame {
 
-    private final Controller controller;
-
     public MainFrame(Controller controller) {
         super("iStore");
-        this.controller = controller;
         setSize(1280, 720);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 

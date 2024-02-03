@@ -1,9 +1,11 @@
-package fr.newstaz.istore.ui.panel;
+package fr.newstaz.istore.ui.panel.stores;
 
 import fr.newstaz.istore.controller.Controller;
 import fr.newstaz.istore.model.Inventory;
 import fr.newstaz.istore.model.InventoryItem;
 import fr.newstaz.istore.model.Store;
+import fr.newstaz.istore.response.StoreResponse;
+import fr.newstaz.istore.ui.component.ToastComponent;
 
 import javax.swing.*;
 import java.awt.*;
@@ -68,7 +70,13 @@ public class InventoryManagement extends JPanel {
             JTextField quantityTextField = new JTextField(Integer.toString(item.getQuantity()));
             quantityTextField.setPreferredSize(new Dimension(50, 20));
             quantityTextField.addActionListener(e -> {
-                controller.getStoreController().updateInventoryItem(store, item, Integer.parseInt(quantityTextField.getText()));
+                StoreResponse.UpdateInventoryItemResponse updateInventoryItemResponse = controller.getStoreController().updateInventoryItem(store, item, Integer.parseInt(quantityTextField.getText()));
+                if (!updateInventoryItemResponse.success()) {
+                    ToastComponent.showFailedToast(this, updateInventoryItemResponse.message());
+                    return;
+                }
+
+                ToastComponent.showSuccessToast(this, updateInventoryItemResponse.message());
                 item.setQuantity(Integer.parseInt(quantityTextField.getText()));
                 displayInventory(inventory);
             });
@@ -80,7 +88,12 @@ public class InventoryManagement extends JPanel {
             JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             JButton deleteButton = new JButton("DELETE");
             deleteButton.addActionListener(e -> {
-                controller.getStoreController().removeInventoryItem(store, item);
+                StoreResponse.DeleteInventoryItemResponse deleteInventoryItemResponse = controller.getStoreController().removeInventoryItem(store, item);
+                if (!deleteInventoryItemResponse.success()) {
+                    ToastComponent.showFailedToast(this, deleteInventoryItemResponse.message());
+                    return;
+                }
+                ToastComponent.showSuccessToast(this, deleteInventoryItemResponse.message());
                 displayInventory(inventory);
             });
 

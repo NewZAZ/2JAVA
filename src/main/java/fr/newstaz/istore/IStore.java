@@ -9,6 +9,11 @@ import org.mindrot.jbcrypt.BCrypt;
 import javax.swing.*;
 import java.sql.SQLException;
 
+/**
+ * IStore class to manage the application
+ *
+ * @version 1.0
+ */
 public class IStore {
 
     public static void main(String[] args) {

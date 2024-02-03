@@ -11,15 +11,37 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * UserDAO class to manage the user DAO
+ *
+ * @version 1.0
+ * @see UserRepository
+ * @see User
+ */
 public class UserDAO implements UserRepository {
 
+    /**
+     * Database instance
+     *
+     * @see Database
+     */
     private final Database database;
 
+    /**
+     * UserDAO constructor
+     *
+     * @param database the database
+     */
     public UserDAO(Database database) {
         this.database = database;
         createUserTable();
     }
 
+    /**
+     * Create a user
+     *
+     * @param user the user to create
+     */
     @Override
     public void createUser(User user) {
         Connection connection = database.getConnection();
@@ -38,6 +60,12 @@ public class UserDAO implements UserRepository {
         });
     }
 
+    /**
+     * Get a user by id
+     *
+     * @param id the id of the user
+     * @return the user
+     */
     @Override
     public User getUser(int id) {
         Connection connection = database.getConnection();
@@ -61,6 +89,12 @@ public class UserDAO implements UserRepository {
         return null;
     }
 
+    /**
+     * Get a user by login
+     *
+     * @param login the login of the user
+     * @return the user
+     */
     @Override
     public User getUser(String login) {
         Connection connection = database.getConnection();
@@ -84,6 +118,11 @@ public class UserDAO implements UserRepository {
         return null;
     }
 
+    /**
+     * Get a user by id
+     *
+     * @param id the id of the user
+     */
     @Override
     public User getUserById(int id) {
         Connection connection = database.getConnection();
@@ -105,6 +144,11 @@ public class UserDAO implements UserRepository {
         return null;
     }
 
+    /**
+     * Update a user
+     *
+     * @param user the user to update
+     */
     @Override
     public void updateUser(User user) {
         Connection connection = database.getConnection();
@@ -124,6 +168,11 @@ public class UserDAO implements UserRepository {
         });
     }
 
+    /**
+     * Delete a user
+     *
+     * @param user the user to delete
+     */
     @Override
     public void deleteUser(User user) {
         Connection connection = database.getConnection();
@@ -139,6 +188,11 @@ public class UserDAO implements UserRepository {
         });
     }
 
+    /**
+     * Get all users
+     *
+     * @return the list of all users
+     */
     @Override
     public List<User> getAllUsers() {
         Connection connection = database.getConnection();
@@ -161,6 +215,9 @@ public class UserDAO implements UserRepository {
         return users;
     }
 
+    /**
+     * Create the user table
+     */
     private void createUserTable() {
         Connection connection = database.getConnection();
 

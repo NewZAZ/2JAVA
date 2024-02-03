@@ -12,7 +12,6 @@ public class ToastComponent {
 
     public enum ToastPosition {
         TOP_RIGHT,
-        // Ajoutez d'autres positions si nécessaire
     }
 
     public static void showSuccessToast(JPanel mainFrame, String message) {
@@ -49,7 +48,7 @@ public class ToastComponent {
             setLocation(calculatePosition(parentLocation, parentPanel.getWidth(), position));
 
             messageLabel = new JLabel(message);
-            messageLabel.setForeground(Color.WHITE);  // Couleur du texte
+            messageLabel.setForeground(Color.WHITE);
             add(messageLabel);
 
             addComponentListener(new ComponentAdapter() {
@@ -68,9 +67,9 @@ public class ToastComponent {
         private volatile boolean shouldCancel = false;
 
         public void display(int duration) {
-            SwingWorker<Void, Float> worker = new SwingWorker<Void, Float>() {
+            SwingWorker<Void, Float> worker = new SwingWorker<>() {
                 @Override
-                protected Void doInBackground() throws Exception {
+                protected Void doInBackground() {
                     try {
                         setOpacity(1);
                         setVisible(true);
@@ -116,7 +115,6 @@ public class ToastComponent {
                     x = parentLocation.x + parentWidth - getWidth() - 10;
                     y += 10;
                     break;
-                // Ajoutez d'autres positions si nécessaire
             }
 
             return new Point(x, y);

@@ -64,7 +64,7 @@ public class RegisterPanel extends JPanel {
         gbc.gridy++;
         gbc.gridx = 0;
         gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.CENTER; // Centrer horizontalement
+        gbc.anchor = GridBagConstraints.CENTER;
         JButton registerButton = new JButton("Register");
         registerButton.addActionListener(e -> {
             SwingUtilities.invokeLater(this::performRegister);

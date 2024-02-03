@@ -9,7 +9,7 @@ public class TestToast {
 
         JFrame mainFrame = new JFrame();
 
-        ToastMessage message = new ToastMessage(mainFrame, "Welcome to TutorialsPoint.Com");
+        ToastMessage message = new ToastMessage(mainFrame, "Test toast message");
         message.display();
     }
 
@@ -20,7 +20,6 @@ public class TestToast {
             setLayout(new GridBagLayout());
             setBackground(new Color(240, 240, 240, 250));
 
-            // Positionner en haut à droite par rapport au mainFrame
             setLocation(mainFrame.getX() + mainFrame.getWidth() - getWidth(), mainFrame.getY());
 
             setSize(300, 50);
@@ -40,13 +39,11 @@ public class TestToast {
                 setVisible(true);
                 Thread.sleep(2000);
 
-                // Cacher le message de toast en douceur
                 for (double d = 1.0; d > 0.2; d -= 0.1) {
                     Thread.sleep(100);
                     setOpacity((float) d);
                 }
 
-                // Rendre la fenêtre invisible
                 setVisible(false);
             } catch (Exception e) {
                 System.out.println(e.getMessage());

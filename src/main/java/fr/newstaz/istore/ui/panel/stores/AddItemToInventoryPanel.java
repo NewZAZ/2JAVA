@@ -1,7 +1,9 @@
-package fr.newstaz.istore.ui.panel;
+package fr.newstaz.istore.ui.panel.stores;
 
 import fr.newstaz.istore.controller.Controller;
 import fr.newstaz.istore.model.Store;
+import fr.newstaz.istore.response.StoreResponse;
+import fr.newstaz.istore.ui.component.ToastComponent;
 
 import javax.swing.*;
 
@@ -32,7 +34,12 @@ public class AddItemToInventoryPanel extends JPanel {
         addButton.addActionListener(e -> {
             String itemName = itemNameField.getText();
             String itemPrice = itemPriceField.getText();
-            controller.getStoreController().createInventoryItem(store, itemName, Integer.parseInt(itemPrice), Integer.parseInt(itemQuantityField.getText()));
+            StoreResponse.CreateInventoryItemResponse inventoryItem = controller.getStoreController().createInventoryItem(store, itemName, Integer.parseInt(itemPrice), Integer.parseInt(itemQuantityField.getText()));
+            if (!inventoryItem.success()) {
+                ToastComponent.showFailedToast(this, inventoryItem.message());
+                return;
+            }
+            ToastComponent.showSuccessToast(this, inventoryItem.message());
             SwingUtilities.invokeLater(() -> {
                 mainFrame.setContentPane(new InventoryManagement(mainFrame, controller, store));
                 mainFrame.revalidate();

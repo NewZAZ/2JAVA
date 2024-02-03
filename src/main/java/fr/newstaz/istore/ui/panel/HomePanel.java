@@ -1,6 +1,8 @@
 package fr.newstaz.istore.ui.panel;
 
 import fr.newstaz.istore.controller.Controller;
+import fr.newstaz.istore.ui.panel.stores.StoreManagement;
+import fr.newstaz.istore.ui.panel.users.UserManagementPanel;
 
 import javax.swing.*;
 

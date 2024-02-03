@@ -51,7 +51,7 @@ public class LoginPanel extends JPanel {
 
         gbc.gridy++;
         gbc.gridx = 0;
-        gbc.anchor = GridBagConstraints.CENTER; // Centrer horizontalement
+        gbc.anchor = GridBagConstraints.CENTER;
         gbc.gridwidth = 2;
         JButton loginButton = new JButton("Login");
         loginButton.addActionListener(e -> {
@@ -61,7 +61,7 @@ public class LoginPanel extends JPanel {
 
         gbc.gridy++;
         gbc.gridx = 0;
-        gbc.anchor = GridBagConstraints.CENTER; // Centrer horizontalement
+        gbc.anchor = GridBagConstraints.CENTER;
         gbc.gridwidth = 2;
         JButton registerButton = new JButton("Register");
         registerButton.addActionListener(e -> {

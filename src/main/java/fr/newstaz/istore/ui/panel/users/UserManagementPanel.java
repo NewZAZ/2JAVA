@@ -1,7 +1,8 @@
-package fr.newstaz.istore.ui.panel;
+package fr.newstaz.istore.ui.panel.users;
 
 import fr.newstaz.istore.controller.Controller;
 import fr.newstaz.istore.model.User;
+import fr.newstaz.istore.ui.panel.HomePanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,9 +14,7 @@ public class UserManagementPanel extends JPanel {
     private final JFrame mainFrame;
 
     private JTextField searchTextField;
-    private JButton searchButton;
     private JPanel userPanel;
-    private JButton addButton;
 
     public UserManagementPanel(Controller controller, JFrame mainFrame) {
         this.controller = controller;
@@ -26,22 +25,20 @@ public class UserManagementPanel extends JPanel {
     public void init() {
         setLayout(new BorderLayout());
 
-        // Champ de recherche
         searchTextField = new JTextField();
-        searchButton = new JButton("SEARCH");
+        JButton searchButton = new JButton("SEARCH");
 
         searchButton.addActionListener(e -> displayUsers(controller.getUserController().searchUsers(searchTextField.getText())));
 
-        // Panneau pour les utilisateurs
         userPanel = new JPanel();
         userPanel.setLayout(new BoxLayout(userPanel, BoxLayout.Y_AXIS));
 
         displayUsers(controller.getUserController().getAllUsers());
 
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        // Bouton d'ajout
+
         if (controller.getAuthenticationController().getLoggedUser() != null && controller.getAuthenticationController().getLoggedUser().getRole() == User.Role.ADMIN) {
-            addButton = new JButton("AJOUTER UN UTILISATEUR");
+            JButton addButton = new JButton("AJOUTER UN UTILISATEUR");
             addButton.addActionListener(e -> SwingUtilities.invokeLater(() -> {
                 mainFrame.setContentPane(new AddUserPanel(controller, mainFrame));
                 mainFrame.revalidate();
@@ -49,7 +46,6 @@ public class UserManagementPanel extends JPanel {
             bottomPanel.add(addButton);
         }
 
-        // Ajout des composants au panneau
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.add(searchTextField, BorderLayout.CENTER);
         topPanel.add(searchButton, BorderLayout.EAST);
@@ -58,7 +54,6 @@ public class UserManagementPanel extends JPanel {
         JScrollPane comp = new JScrollPane(userPanel);
 
         comp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        // Set fastes scroll speed
         comp.getVerticalScrollBar().setUnitIncrement(16);
 
         centerPanel.add(comp, BorderLayout.CENTER);
@@ -66,7 +61,6 @@ public class UserManagementPanel extends JPanel {
         add(topPanel, BorderLayout.NORTH);
         add(centerPanel, BorderLayout.CENTER);
 
-        // Ajouter le bouton retour
         JButton backButton = new JButton("RETOUR");
         backButton.addActionListener(e -> SwingUtilities.invokeLater(() -> {
             mainFrame.setContentPane(new HomePanel(controller, mainFrame));
@@ -76,9 +70,8 @@ public class UserManagementPanel extends JPanel {
         add(bottomPanel, BorderLayout.SOUTH);
     }
 
-    // Méthode pour afficher les utilisateurs avec des boutons "MODIFIER"
     public void displayUsers(List<User> userList) {
-        userPanel.removeAll(); // Efface les composants existants
+        userPanel.removeAll();
 
         for (User user : userList) {
             User loggedUser = controller.getAuthenticationController().getLoggedUser();
