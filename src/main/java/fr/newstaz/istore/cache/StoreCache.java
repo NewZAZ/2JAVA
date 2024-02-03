@@ -165,4 +165,20 @@ public class StoreCache implements StoreRepository {
 
         stores.invalidateAll();
     }
+
+    @Override
+    public List<User> getEmployeesPermissions(Store store) {
+        return storeDAO.getEmployeesPermissions(store);
+    }
+
+    @Override
+    public void addEmployeePermission(Store store, User user) {
+        storeDAO.addEmployeePermission(store, user);
+
+    }
+
+    @Override
+    public void removeEmployeePermission(Store store, User user) {
+        storeDAO.removeEmployeePermission(store, user);
+    }
 }

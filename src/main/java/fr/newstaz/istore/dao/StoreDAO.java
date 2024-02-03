@@ -178,6 +178,78 @@ public class StoreDAO implements StoreRepository {
     }
 
     /**
+     *
+     * @param store the store
+     * @return the list of all employees
+     */
+    @Override
+    public List<User> getEmployeesPermissions(Store store) {
+        Connection connection = database.getConnection();
+        List<User> users = new ArrayList<>();
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT u.* FROM users u " +
+                        "LEFT JOIN users_permission up ON u.id = up.user_id " +
+                        "WHERE up.store_id = ?")) {
+            statement.setInt(1, store.getId());
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                users.add(new User(
+                        resultSet.getInt("id"),
+                        resultSet.getString("email"),
+                        resultSet.getString("password"),
+                        User.Role.valueOf(resultSet.getString("role")),
+                        resultSet.getBoolean("is_verified")
+                ));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return users;
+    }
+
+    /**
+     * Add an employee to a store
+     *
+     * @param store the store
+     * @param user  the user to add
+     */
+    @Override
+    public void addEmployeePermission(Store store, User user) {
+        Connection connection = database.getConnection();
+        database.execute(() -> {
+            try (PreparedStatement statement = connection.prepareStatement("INSERT INTO users_permission (store_id, user_id) VALUES (?, ?)")) {
+                statement.setInt(1, store.getId());
+                statement.setInt(2, user.getId());
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+        });
+
+    }
+
+    /**
+     * Get all employees of a store
+     *
+     * @param store the store
+     * @return the list of all employees
+     */
+    @Override
+    public void removeEmployeePermission(Store store, User user) {
+        Connection connection = database.getConnection();
+        database.execute(() -> {
+            try (PreparedStatement statement = connection.prepareStatement("DELETE FROM users_permission WHERE store_id = ? AND user_id = ?")) {
+                statement.setInt(1, store.getId());
+                statement.setInt(2, user.getId());
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    /**
      * Check if an employee is already added to a store
      *
      * @param user  the user
@@ -249,6 +321,14 @@ public class StoreDAO implements StoreRepository {
                 statement.executeUpdate();
             } catch (SQLException e) {
                 throw new RuntimeException(e);
+            }
+            try (PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS users_permission (id INT PRIMARY KEY AUTO_INCREMENT, store_id INT NOT NULL, user_id INT NOT NULL, FOREIGN KEY (store_id) REFERENCES stores(id), FOREIGN KEY (user_id) REFERENCES users(id))"
+            )) {
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+
             }
         });
     }

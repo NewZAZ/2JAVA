@@ -2,6 +2,7 @@ package fr.newstaz.istore.ui.panel.stores;
 
 import fr.newstaz.istore.controller.Controller;
 import fr.newstaz.istore.model.Store;
+import fr.newstaz.istore.model.User;
 import fr.newstaz.istore.ui.component.ToastComponent;
 import fr.newstaz.istore.ui.panel.HomePanel;
 
@@ -46,7 +47,9 @@ public class StoreManagement extends JPanel {
             mainFrame.setContentPane(new AddStorePanel(controller, mainFrame));
             mainFrame.revalidate();
         }));
-        bottomPanel.add(addButton);
+        if (controller.getAuthenticationController().getLoggedUser().getRole() == User.Role.ADMIN) {
+            bottomPanel.add(addButton);
+        }
 
         // Return button
         JButton backButton = new JButton("RETOUR");
@@ -75,45 +78,47 @@ public class StoreManagement extends JPanel {
     // Method to display stores with buttons "MODIFIER"
     public void displayStores(List<Store> storeList) {
         storePanel.removeAll();
-
         for (Store store : storeList) {
             JPanel storeRow = new JPanel(new BorderLayout());
-            JButton deleteButton = new JButton("DELETE");
-            deleteButton.addActionListener(e -> {
-                boolean success = controller.getStoreController().deleteStore(store);
-                if (success) {
-                    ToastComponent.showSuccessToast(this, "Store deleted");
-                    SwingUtilities.invokeLater(() -> {
-                        mainFrame.setContentPane(new StoreManagement(controller, mainFrame));
-                        mainFrame.revalidate();
-                    });
-                } else {
-                    ToastComponent.showFailedToast(this, "Store not deleted");
-                }
-            });
-            JButton manageEmployeesButton = new JButton("MANAGE EMPLOYEES");
-            manageEmployeesButton.addActionListener(e -> SwingUtilities.invokeLater(() -> {
-                mainFrame.setContentPane(new UsersInStorePanel(mainFrame, controller, store));
-                mainFrame.revalidate();
-            }));
+            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+            if (controller.getAuthenticationController().getLoggedUser().getRole() == User.Role.ADMIN) {
+                JButton deleteButton = new JButton("DELETE");
+                deleteButton.addActionListener(e -> {
+                    boolean success = controller.getStoreController().deleteStore(store);
+                    if (success) {
+                        ToastComponent.showSuccessToast(this, "Store deleted");
+                        SwingUtilities.invokeLater(() -> {
+                            mainFrame.setContentPane(new StoreManagement(controller, mainFrame));
+                            mainFrame.revalidate();
+                        });
+                    } else {
+                        ToastComponent.showFailedToast(this, "Store not deleted");
+                    }
+                });
+                storeRow.add(deleteButton, BorderLayout.WEST);
+            }
+            if (controller.getAuthenticationController().getLoggedUser().getRole() == User.Role.ADMIN || controller.getStoreController().getEmployeesPermissions(store).contains(controller.getAuthenticationController().getLoggedUser())){
+                JButton manageEmployeesButton = new JButton("MANAGE EMPLOYEES");
+                manageEmployeesButton.addActionListener(e -> SwingUtilities.invokeLater(() -> {
+                    mainFrame.setContentPane(new UsersInStorePanel(mainFrame, controller, store));
+                    mainFrame.revalidate();
+                }));
+                buttonPanel.add(manageEmployeesButton);
+            }
             JButton manageInventoryButton = new JButton("MANAGE INVENTORY");
             manageInventoryButton.addActionListener(e -> SwingUtilities.invokeLater(() -> {
                 mainFrame.setContentPane(new InventoryManagement(mainFrame, controller, store));
                 mainFrame.revalidate();
             }));
-            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             JPanel storeDetailsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
             storeDetailsPanel.add(new JLabel("Store Name: " + store.getName()));
 
             buttonPanel.add(manageInventoryButton);
-            buttonPanel.add(manageEmployeesButton);
-            buttonPanel.add(deleteButton);
             storeRow.add(storeDetailsPanel, BorderLayout.CENTER);
             storeRow.add(buttonPanel, BorderLayout.EAST);
 
             storePanel.add(storeRow);
         }
-
         storePanel.revalidate();
         storePanel.repaint();
     }

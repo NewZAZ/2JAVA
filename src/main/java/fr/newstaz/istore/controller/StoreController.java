@@ -207,4 +207,25 @@ public class StoreController {
         return new StoreResponse.DeleteInventoryItemResponse(true, "Inventory item deleted");
     }
 
+    public StoreResponse.AddPermissionResponse addPermission(Store store, User user) {
+        if (repository.getStoreRepository().getStore(store.getName()) == null) {
+            return new StoreResponse.AddPermissionResponse(false, "Store not found");
+        }
+        repository.getStoreRepository().addEmployeePermission(store, user);
+        return new StoreResponse.AddPermissionResponse(true, "User added");
+    }
+
+    public List<User> getEmployeesPermissions(Store store) {
+        return repository.getStoreRepository().getEmployeesPermissions(store);
+    }
+
+    public StoreResponse.RemovePermissionResponse removePermission(Store store, User user) {
+        if (repository.getStoreRepository().getStore(store.getName()) == null) {
+            return new StoreResponse.RemovePermissionResponse(false, "Store not found");
+        }
+        repository.getStoreRepository().removeEmployeePermission(store, user);
+        return new StoreResponse.RemovePermissionResponse(true, "User removed");
+    }
+
+
 }

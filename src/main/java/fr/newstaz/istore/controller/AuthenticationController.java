@@ -55,8 +55,7 @@ public class AuthenticationController {
      * @return the register response
      */
     public RegisterResponse register(String email, String password) {
-        UserResponse.CreateUserResponse response = userController.createUser(new User(email, BCrypt.hashpw(password, BCrypt.gensalt()), User.Role.USER));
-
+        UserResponse.CreateUserResponse response = userController.createUser(new User(email, password, User.Role.USER));
         if (!response.success()) {
             return new RegisterResponse(false, response.message());
         }

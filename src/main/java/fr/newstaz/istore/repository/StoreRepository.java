@@ -76,4 +76,29 @@ public interface StoreRepository {
      */
     void removeEmployee(Store store, User user);
 
+
+    /**
+     * Get all employees of a store
+     *
+     * @param store the store
+     * @return the list of all employees
+     */
+    List<User> getEmployeesPermissions(Store store);
+
+    /**
+     * Add an employee to a store
+     *
+     * @param store the store
+     * @param user  the user to add
+     */
+    void addEmployeePermission(Store store, User user);
+
+    /**
+     * Remove an employee from a store
+     *
+     * @param store the store
+     * @param user  the user to remove
+     */
+    void removeEmployeePermission(Store store, User user);
+
 }

@@ -26,5 +26,13 @@ public record StoreResponse(boolean success, String message) {
 
     }
 
+    public record AddPermissionResponse(boolean success, String message) {
+
+    }
+
+    public record RemovePermissionResponse(boolean success, String message) {
+
+    }
+
 
 }
